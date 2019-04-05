@@ -1,0 +1,86 @@
+\chapter{CLI Guide}
+\section{Einstieg}
+Login über puTTy (Windows) oder ssh auf Unix Systemen. Passwort mit! Sonderzeichen. Man ist nun im User EXEC Modus. Man kann nicht viel brauchbares im User EXEC Modus machen.
+\begin{lstlisting}[language=CISCO] 
+login as: admin 
+Using keyboard-interactive authentication.
+Password: 
+\end{lstlisting}
+Danach in den enable Modus. Gleiches Passwort wie oben. Danach ist man im Privileged EXEC Modus. Sichtbar am \# - Zeichen.
+\begin{lstlisting}[language=CISCO] 
+SW01> en 
+Password: 
+SW01#
+\end{lstlisting}
+
+\section{CLI: laufen lernen}
+Sämtliche, in der CLI eingegebene Kommandos werden vom Parser im Betriebssystem verarbeitet. Sobald der Parser eindeutig entscheiden kann, welches Kommando gemeint ist, ist es unnötig, das Kommando komplett auszuschreiben. Zum beispiel muss nicht \glqq show running-configuration\grqq (was die korrekt ausgeschriebene Funktion wäre), sonders es reicht \glqq sh ru\grqq . Wenn man nicht sicher ist, kann man auch mit einem tab schauen, welches Kommando der Parser auflöst. Ist es nicht eindeutig, so passiert nichts. Man kann auch mit einem \glqq ?\grqq überprüft werden, ob der Parser noch weitere mögliche Kommandos auf den eingegebenen Anfang findet.
+\begin{lstlisting}[language=CISCO] 
+SW01#sh s?
+sampler   sasl           scp      sdm
+sessions  setup          snmp     spanning-tree
+ssh       stacks         standby  startup-config
+status    storm-control  subsys   switch
+system
+\end{lstlisting}
+Mit diesen Tricks kann man mit etwas Übung sehr schnell sein. Ausserdem benötigt man nicht mehr so ausführliche Kenntnisse über alle Commands, man kann auch einfach etwas durchtoggeln.
+
+\section{Config Dateien}
+Es gibt zwei wichtige Konfigurationsdateien im Filesystem: running-configuration und startup-configuration. Beim start des Cisco IOS Betriebssystems wird das running-configuration File vom startup-configuration File überschrieben. Das running-configuration-file wird ins nvram geladen und ist deshalb flüchtig. Sämtliche Änderungen am running-configuration File müssen deshalb ins startup-configuration File geschrieben werden, ansonsten sind sie nach einem Neustart weg.
+\begin{lstlisting}[language=CISCO] 
+SW01> copy running-configuration startup-configuration
+Destination filename [startup-config]?
+SW01#
+\end{lstlisting}
+
+Möchte man die Config wegsichern, braucht man entweder einen tftp Server oder man kopiert die Config manuell in ein Textfile mit dem \glqq show run\grqq - Befehl.
+
+\begin{lstlisting}[language=CISCO] 
+SW01#copy running-config tftp:
+Address or name of remote host []? 192.168.1.11
+Destination filename [running-config]? sw01_29_2_2020
+!!
+1030 bytes copied in 2.489 secs (395 bytes/sec)
+SW01#
+\end{lstlisting}
+
+\section{Show Commands}
+Im Privileged EXEC Modus können \glqq show-Befehle\grqq ausgeführt werden. Mit show Befehlen werden keinerlei Änderungen am running-configuration File vorgenommen, sie können deshalb jederzeit unbedenklich ausgeführt werden.
+
+\subsection{Ganze Konfiguration}
+Die gesamte Konfiguration kann mit dem \glqq show running-configuration\grqq - Befehl angezeigt werden oder kurz \glqq sh ru\grqq . Um die Config zu sichern, könnte man einfach den gesamten dargestellten Inhalt in ein File kopieren und abspeichern.
+\begin{lstlisting}[language=CISCO] 
+SW01#sh ru
+SW01#sh ru
+Building configuration...
+
+Current configuration : 15777 bytes
+!
+! Last configuration change at 13:16:00 UTC Thu Mar 14 2019 by admin
+! NVRAM config last updated at 11:41:41 UTC Thu Mar 21 2019 by admin
+!
+version 15.0
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname SW01
+!
+boot-start-marker
+boot-end-marker
+...
+...
+...
+...
+\end{lstlisting}
+
+\subsection{Routing Tabelle}
+Die Routing Table kann mit dem Befehl \glqq show ip route\grqq angezeigt werden. 
+
+
+
+
+
+
+
